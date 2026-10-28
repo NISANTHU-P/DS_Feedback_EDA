@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from src.pipeline import normalize_columns, clean_feedback, add_sentiment, get_top_words, sentiment_agreement
+from src.pipeline import normalize_columns, clean_feedback, add_sentiment, get_top_words, get_top_bigrams, sentiment_agreement
 
 
 # ── helpers ───────────────────────────────────────────────────────────────────
@@ -230,6 +230,14 @@ def test_get_top_words_filters_stopwords():
     out = get_top_words(s, n=10)
     # all words are stopwords — result should be empty
     assert len(out) == 0
+
+
+def test_get_top_bigrams_returns_dataframe():
+    s = pd.Series(["great customer service and great food", "customer service was terrible"])
+    out = get_top_bigrams(s, n=5)
+    assert isinstance(out, pd.DataFrame)
+    assert list(out.columns) == ["bigram", "count"]
+    assert "customer service" in out["bigram"].values
 
 
 # ── sentiment_agreement ───────────────────────────────────────────────────────

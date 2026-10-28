@@ -183,6 +183,20 @@ def get_top_words(series: pd.Series, n: int = 20) -> pd.DataFrame:
     return pd.DataFrame(Counter(tokens).most_common(n), columns=["word", "count"])
 
 
+def get_top_bigrams(series: pd.Series, n: int = 15) -> pd.DataFrame:
+    """Return a DataFrame of top-n most frequent 2-word phrases (bigrams)."""
+    from collections import Counter
+    bigrams = []
+    for txt in series.astype(str):
+        words = [
+            w for w in re.findall(r"[a-zA-Z]{3,}", txt.lower())
+            if w not in STOPWORDS
+        ]
+        bigrams.extend(zip(words[:-1], words[1:]))
+    counts = Counter(f"{w1} {w2}" for w1, w2 in bigrams)
+    return pd.DataFrame(counts.most_common(n), columns=["bigram", "count"])
+
+
 def sentiment_agreement(df: pd.DataFrame) -> pd.DataFrame:
     """
     Compare original sentiment_source labels against VADER sentiment.
